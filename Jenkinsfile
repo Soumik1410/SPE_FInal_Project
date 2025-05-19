@@ -26,6 +26,13 @@ pipeline {
         	'''
     	    }
 	}
+	stage('Prepare Requirements') {
+    	    steps {
+        	sh '''
+                sed -i '/^torch==2.7.0+cpu$/d' requirements.txt
+        	'''
+    		}
+	}
         stage("Build Docker Image") {
 			steps {
                 script {
