@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.log
+data/flickr/Images/
+data/flickr/captions.txt
+.env
+
