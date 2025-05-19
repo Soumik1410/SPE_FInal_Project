@@ -14,11 +14,11 @@ pipeline {
                 sh '/home/soumik/ml-devops-env/bin/python train.py'
             }
         }
-        stage('Test Model') {
+        /*stage('Test Model') {
             steps {
                 sh '/home/soumik/ml-devops-env/bin/python test.py'
             }
-        }
+        }*/
 	stage('Test Model') {
             steps {
                 sh '/home/soumik/ml-devops-env/bin/python test.py'

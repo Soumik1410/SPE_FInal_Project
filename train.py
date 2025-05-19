@@ -150,13 +150,13 @@ with mlflow.start_run():
     mlflow.log_param("embedding_dim", 256)
     mlflow.log_param("lstm_units", 256)
     mlflow.log_param("dropout", 0.5)
-    mlflow.log_param("epochs", 12)
+    mlflow.log_param("epochs", 1)
 
     # Train and capture history
     history = caption_model.fit(
         train_gen,
         validation_data=val_gen,
-        epochs=12,
+        epochs=1,
         callbacks=[checkpoint, earlystop, reduce_lr],
         verbose=1
     )
