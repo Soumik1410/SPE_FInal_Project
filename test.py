@@ -2,6 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 import pickle
+import mlflow
+import mlflow.tensorflow
 from tensorflow.keras.models import load_model, Model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.preprocessing.text import Tokenizer
@@ -16,8 +18,8 @@ warnings.filterwarnings('ignore')
 nltk.download('punkt')
 
 # Paths
-image_path = 'data/flickr8k/Images'
-captions_file = 'data/flickr8k/captions.txt'
+image_path = '/home/soumik/SPE_Final_Project/data/flickr/Images'
+captions_file = '/home/soumik/SPE_Final_Project/data/flickr/captions.txt'
 model_path = 'models/model.h5'
 features_file = "models/features.pkl"
 
@@ -83,20 +85,29 @@ def predict_caption(model, image, tokenizer, max_length, features):
             break
     return in_text
 
-# Evaluate using BLEU score
-smoothie = SmoothingFunction().method4
-bleu_scores = []
-predictions = []
+mlflow.set_experiment("Image Captioning Test Evaluation")
+with mlflow.start_run(run_name="test_evaluation"):
 
-for index, row in tqdm(test.iterrows(), total=len(test), desc="Evaluating"):
-    ground_truth = row['caption'].split()
-    predicted_caption = predict_caption(caption_model, row['image'], tokenizer, max_length, features)
-    predicted_caption_tokens = predicted_caption.split()[1:-1]  # remove startseq, endseq
-    bleu = sentence_bleu([ground_truth[1:-1]], predicted_caption_tokens, smoothing_function=smoothie)
-    bleu_scores.append(bleu)
-    predictions.append(predicted_caption)
+    # Evaluate using BLEU score
+    smoothie = SmoothingFunction().method4
+    bleu_scores = []
+    predictions = []
 
-test['predicted_caption'] = predictions
-print("\nAverage BLEU score on test set:", np.mean(bleu_scores))
+    for index, row in tqdm(test.iterrows(), total=len(test), desc="Evaluating"):
+        ground_truth = row['caption'].split()
+        predicted_caption = predict_caption(caption_model, row['image'], tokenizer, max_length, features)
+        predicted_caption_tokens = predicted_caption.split()[1:-1]  # remove startseq, endseq
+        bleu = sentence_bleu([ground_truth[1:-1]], predicted_caption_tokens, smoothing_function=smoothie)
+        bleu_scores.append(bleu)
+        predictions.append(predicted_caption)
+
+    test['predicted_caption'] = predictions
+    print("\nAverage BLEU score on test set:", np.mean(bleu_scores))
+
+    mlflow.log_metric("average_bleu", np.mean(bleu_scores))
+    mlflow.log_param("test_samples", len(test))
+    pred_file = "test_predictions.csv"
+    test.to_csv(pred_file, index=False)
+    mlflow.log_artifact(pred_file)
 
 
