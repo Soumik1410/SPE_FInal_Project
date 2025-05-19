@@ -26,6 +26,13 @@
 - name: Set kubectl context to Minikube
   shell: minikube update-context
 
+- name: Create namespace if not present
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: image-caption-app-mt2024153
+    state: present
+
 - name: Apply Kubernetes deployment
   kubernetes.core.k8s:
     kubeconfig: ~/.kube/config

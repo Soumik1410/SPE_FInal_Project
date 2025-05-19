@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: captioner-service
-  namespace: captioner-service-mt2024153
+  namespace: image-caption-app-mt2024153
 spec:
   type: NodePort
   selector:
