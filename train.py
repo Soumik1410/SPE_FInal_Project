@@ -6,6 +6,7 @@ import pandas as pd
 import pickle
 import tensorflow as tf
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 import mlflow
 import mlflow.tensorflow
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
@@ -49,6 +50,10 @@ tokenizer = Tokenizer()
 tokenizer.fit_on_texts(captions)
 vocab_size = len(tokenizer.word_index) + 1
 max_length = max(len(caption.split()) for caption in captions)
+
+# Save tokenizer early
+with open(os.path.join(model_dir, 'tokenizer.pkl'), 'wb') as f:
+    pickle.dump(tokenizer, f)
 
 # 80% Train, 10% Validation, 10% Test
 images = data['image'].unique().tolist()
@@ -134,7 +139,7 @@ caption_model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 # Callbacks
 checkpoint = ModelCheckpoint(os.path.join(model_dir, "model.h5"), monitor="val_loss", save_best_only=True, mode="min", verbose=1)
-earlystop = EarlyStopping(monitor='val_loss', patience=1, restore_best_weights=True, verbose=1)
+earlystop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', patience=3, factor=0.2, min_lr=1e-8, verbose=1)
 
 # MLflow logging
@@ -173,5 +178,3 @@ with mlflow.start_run():
     plt.savefig(plot_path)
     mlflow.log_artifact(plot_path)
 
-with open(os.path.join(model_dir, 'tokenizer.pkl'), 'wb') as f:
-    pickle.dump(tokenizer, f)
