@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.log
+mlruns/
+train.py
+test.py
+extract_features.py
+data/
+.env
+.DS_Store
+.git
+.gitignore
+.dockerignore
