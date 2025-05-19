@@ -1,4 +1,4 @@
-# infer_utils.py
+# infer.py
 
 import os
 import numpy as np
