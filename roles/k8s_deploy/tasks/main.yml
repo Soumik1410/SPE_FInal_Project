@@ -1,0 +1,33 @@
+---
+# tasks file for roles/k8s_deploy
+
+- name: Pull Docker image from Docker Hub
+  shell: docker pull soumik1410/imagecaptioner_mt2024153:latest
+  register: docker_pull_result
+
+- name: Show Docker pull output
+  debug:
+    var: docker_pull_result.stdout_lines
+
+- name: Start Minikube if not already running
+  shell: |
+    minikube status || minikube start --driver=docker
+  register: minikube_status
+  changed_when: "'Running' not in minikube_status.stdout"
+
+- name: Set kubectl context to Minikube
+  shell: minikube update-context
+
+- name: Apply Kubernetes deployment
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    state: present
+    definition: "{{ lookup('file', 'deployment.yaml') }}"
+
+- name: Apply Kubernetes service (if any)
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    state: present
+    definition: "{{ lookup('file', 'service.yaml') }}"
+  when: lookup('file', 'service.yaml', errors='ignore') is not none
+

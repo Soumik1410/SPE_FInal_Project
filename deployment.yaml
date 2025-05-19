@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-caption-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: captioner
+  template:
+    metadata:
+      labels:
+        app: captioner
+    spec:
+      containers:
+      - name: captioner
+        image: soumik1410/imagecaptioner_mt2024153:latest
+        ports:
+        - containerPort: 8501
+
