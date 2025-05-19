@@ -26,18 +26,29 @@ pipeline {
         	'''
     	    }
 	}
-	stage('Prepare Requirements') {
-    	    steps {
-        	sh '''
-                sed -i '/^torch==2.7.0+cpu$/d' requirements.txt
-        	'''
-    		}
-	}
+	stage('Clean Requirements') {
+	    steps {
+	        script {
+	            sh '''
+	            echo "[INFO] Cleaning torch and unused packages from requirements.txt..."
+	            sed -i '/torch/d' requirements.txt
+	            sed -i '/torchaudio/d' requirements.txt
+	            sed -i '/torchvision/d' requirements.txt
+	            sed -i '/fastapi/d' requirements.txt
+	            sed -i '/uvicorn/d' requirements.txt
+	            # Remove lines with +cpu (invalid for pip)
+	            sed -i '/+cpu/d' requirements.txt
+	            echo "[INFO] Cleaned requirements.txt:"
+	            cat requirements.txt
+	            '''
+		        }
+	    	}
+	}	
         stage("Build Docker Image") {
 			steps {
                 script {
                 	sh 'docker build -t imagecaptioner_mt2024153:latest .'
-		        	echo 'Docker Image successfully created.'
+	        	echo 'Docker Image successfully created.'
                 }
             }
         }
