@@ -9,6 +9,14 @@
   debug:
     var: docker_pull_result.stdout_lines
 
+- name: Stop existing Minikube cluster if running
+  shell: minikube stop
+  ignore_errors: yes
+
+- name: Delete existing Minikube cluster if exists
+  shell: minikube delete
+  ignore_errors: yes
+
 - name: Start Minikube if not already running
   shell: |
     minikube status || minikube start --driver=docker
