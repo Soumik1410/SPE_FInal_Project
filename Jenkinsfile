@@ -8,9 +8,12 @@ pipeline {
             }
         }
 
-        stage('List Python Files') {
+        stage('Activate Venv') {
             steps {
-                sh 'ls -l *.py'
+                sh '''
+                    source /home/soumik/ml-devops-env/bin/activate
+                    echo $VIRTUAL_ENV
+                '''
             }
         }
     }
