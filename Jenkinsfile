@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    environment {
+        VENV_PATH = '/home/soumik/ml-devops-env/bin/activate'
+    }
     stages {
         stage('Checkout Code') {
             steps {
@@ -10,9 +12,11 @@ pipeline {
 
         stage('Activate Venv') {
             steps {
-                sh '''
-                    source /home/soumik/ml-devops-env/bin/activate
-                    echo $VIRTUAL_ENV
+                 sh '''
+                    bash -c '
+                    source ${VENV_PATH}
+                    echo \$VIRTUAL_ENV
+                    '
                 '''
             }
         }
