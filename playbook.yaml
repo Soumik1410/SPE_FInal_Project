@@ -1,7 +1,6 @@
 ---
 - name: Deploy Docker image to Minikube Kubernetes cluster
   hosts: localhost
-  become: true
   roles:
     - k8s_deploy
 
