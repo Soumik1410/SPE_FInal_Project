@@ -19,6 +19,18 @@ pipeline {
                 sh '/home/soumik/ml-devops-env/bin/python test.py'
             }
         }
+	stage('Test Model') {
+            steps {
+                sh '/home/soumik/ml-devops-env/bin/python test.py'
+            }
+        }
+	stage('Export Requirements') {
+    	    steps {
+        	sh '''
+            	bash -c "source /home/soumik/ml-devops-env/bin/activate && pip freeze > requirements.txt"
+        	'''
+    	    }
+	}
         stage("Build Docker Image") {
 			steps {
                 script {
