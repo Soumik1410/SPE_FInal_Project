@@ -6,6 +6,8 @@ import pandas as pd
 import pickle
 import tensorflow as tf
 from tqdm import tqdm
+import mlflow
+import mlflow.tensorflow
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -17,10 +19,13 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLRO
 import warnings
 
 warnings.filterwarnings('ignore')
+mlflow.tensorflow.autolog(disable=True)
+
+mlflow.set_experiment("Image Captioning")
 
 # Paths
-image_path = 'data/flickr/Images'
-captions_file = 'data/flickr/captions.txt'
+image_path = '/home/soumik/SPE_Final_Project/data/flickr/Images'
+captions_file = '/home/soumik/SPE_Final_Project/data/flickr/captions.txt'
 model_dir = 'models/'
 os.makedirs(model_dir, exist_ok=True)
 feature_file = os.path.join(model_dir, 'features.pkl')
@@ -129,14 +134,44 @@ caption_model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 # Callbacks
 checkpoint = ModelCheckpoint(os.path.join(model_dir, "model.h5"), monitor="val_loss", save_best_only=True, mode="min", verbose=1)
-earlystop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True, verbose=1)
+earlystop = EarlyStopping(monitor='val_loss', patience=1, restore_best_weights=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', patience=3, factor=0.2, min_lr=1e-8, verbose=1)
 
-# Training
-caption_model.fit(train_gen,
-                  validation_data=val_gen,
-                  epochs=20,
-                  callbacks=[checkpoint, earlystop, reduce_lr])
+# MLflow logging
+with mlflow.start_run():
+    # Log hyperparameters
+    mlflow.log_param("batch_size", 64)
+    mlflow.log_param("optimizer", "adam")
+    mlflow.log_param("embedding_dim", 256)
+    mlflow.log_param("lstm_units", 256)
+    mlflow.log_param("dropout", 0.5)
+    mlflow.log_param("epochs", 12)
+
+    # Train and capture history
+    history = caption_model.fit(
+        train_gen,
+        validation_data=val_gen,
+        epochs=12,
+        callbacks=[checkpoint, earlystop, reduce_lr],
+        verbose=1
+    )
+
+    # Log metrics per epoch
+    for epoch in range(len(history.history['loss'])):
+        mlflow.log_metric("loss", history.history['loss'][epoch], step=epoch)
+        mlflow.log_metric("val_loss", history.history['val_loss'][epoch], step=epoch)
+
+    # Save training curve
+    plt.figure()
+    plt.plot(history.history['loss'], label='train_loss')
+    plt.plot(history.history['val_loss'], label='val_loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.title('Training Curve')
+    plot_path = os.path.join(model_dir, 'training_curve.png')
+    plt.savefig(plot_path)
+    mlflow.log_artifact(plot_path)
 
 with open(os.path.join(model_dir, 'tokenizer.pkl'), 'wb') as f:
     pickle.dump(tokenizer, f)
