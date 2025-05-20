@@ -26,19 +26,19 @@ pipeline {
         	'''
     	    }
 	}
-        stage('Clean Requirements') {
-    steps {
-        script {
-            sh '''
-            echo "[INFO] Cleaning torch and unused packages from requirements.txt..."
-            sed -i -n -e '/^tensorflow==2\.19\.0$/p' \
-            -e '/^streamlit==1\.45\.1$/p' \
-            -e '/^pillow==11\.0\.0$/p' \
-            -e '/^numpy==2\.1\.2$/p' \
-            requirements.txt
-            echo "[INFO] Cleaned requirements.txt:"
-            cat requirements.txt
-            '''
+        sstage('Clean Requirements') {
+    		steps {
+        		script {
+		            sh '''
+		            echo "[INFO] Cleaning requirements.txt to keep only essential packages..."
+		            sed -i -n -e '/^tensorflow==2\\.19\\.0$/p' \\
+		                   -e '/^streamlit==1\\.45\\.1$/p' \\
+		                   -e '/^pillow==11\\.0\\.0$/p' \\
+		                   -e '/^numpy==2\\.1\\.2$/p' \\
+		                   requirements.txt
+		            echo "[INFO] Cleaned requirements.txt content:"
+		            cat requirements.txt
+		            '''
         		}
     		}
 	}
