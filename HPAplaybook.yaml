@@ -28,6 +28,10 @@
     - name: Patch deployment with resource requests and limits
       kubernetes.core.k8s:
         state: patched
+        kind: Deployment
+        api_version: apps/v1
+        namespace: "{{ namespace }}"
+        name: "{{ deployment_name }}"
         definition:
           spec:
             template:
@@ -40,9 +44,6 @@
                         cpu: "200m"
                       limits:
                         cpu: "500m"
-      kind: Deployment
-      namespace: "{{ namespace }}"
-      name: "{{ deployment_name }}"
 
     - name: Create or update HorizontalPodAutoscaler
       kubernetes.core.k8s:
@@ -81,4 +82,3 @@
 
     - debug:
         msg: "{{ hpa_describe.stdout }}"
-
