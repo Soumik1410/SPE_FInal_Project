@@ -1,0 +1,81 @@
+---
+- name: Enable HPA on Minikube
+  hosts: localhost
+  gather_facts: no
+  vars:
+    deployment_name: image-caption-app
+    namespace: image-caption-app-mt2024153
+    min_replicas: 1
+    max_replicas: 5
+    cpu_target_utilization: 80
+    hpa_name: image-caption-app-mt2024153-hpa
+
+  tasks:
+    - name: Enable metrics-server addon in Minikube
+      command: minikube addons enable metrics-server
+      register: addon_result
+      changed_when: "'enabled' in addon_result.stdout or 'already enabled' in addon_result.stdout"
+
+    - name: Wait for metrics-server deployment to be ready
+      shell: kubectl rollout status deployment metrics-server -n kube-system
+      retries: 5
+      delay: 10
+      register: rollout_status
+      until: rollout_status.rc == 0
+
+    - name: Patch deployment with resource requests and limits
+      kubernetes.core.k8s:
+        state: patched
+        definition:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: "{{ deployment_name }}"
+                    resources:
+                      requests:
+                        cpu: "200m"
+                      limits:
+                        cpu: "500m"
+        kind: Deployment
+        namespace: "{{ namespace }}"
+        name: "{{ deployment_name }}"
+
+    - name: Create or update HorizontalPodAutoscaler
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: autoscaling/v2
+          kind: HorizontalPodAutoscaler
+          metadata:
+            name: "{{ hpa_name }}"
+            namespace: "{{ namespace }}"
+          spec:
+            scaleTargetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: "{{ deployment_name }}"
+            minReplicas: "{{ min_replicas }}"
+            maxReplicas: "{{ max_replicas }}"
+            metrics:
+              - type: Resource
+                resource:
+                  name: cpu
+                  target:
+                    type: Utilization
+                    averageUtilization: "{{ cpu_target_utilization }}"
+
+    - name: Wait for HPA to be created
+      shell: kubectl get hpa "{{ hpa_name }}" -n "{{ namespace }}"
+      retries: 5
+      delay: 5
+      register: hpa_status
+      until: hpa_status.rc == 0
+
+    - name: Show HPA status
+      command: kubectl describe hpa "{{ hpa_name }}" -n "{{ namespace }}"
+      register: hpa_describe
+
+    - debug:
+        msg: "{{ hpa_describe.stdout }}"
+
