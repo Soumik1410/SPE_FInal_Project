@@ -23,8 +23,9 @@ with open(tokenizer_path, 'rb') as f:
     tokenizer = pickle.load(f)
 
 vocab_size = len(tokenizer.word_index) + 1
-max_length = max(len(caption.split()) for caption in tokenizer.index_word.values())
-
+with open(os.path.join(model_dir, 'max_length.txt'), 'r') as f:
+    max_length = int(f.read().strip())
+#max_length = max(len(caption.split()) for caption in tokenizer.index_word.values())
 model = load_model(model_path)
 feature_extractor = DenseNet201(include_top=False, pooling='avg')
 

@@ -54,6 +54,8 @@ max_length = max(len(caption.split()) for caption in captions)
 # Save tokenizer early
 with open(os.path.join(model_dir, 'tokenizer.pkl'), 'wb') as f:
     pickle.dump(tokenizer, f)
+with open(os.path.join(model_dir, 'max_length.txt'), 'w') as f:
+    f.write(str(max_length))
 
 # 80% Train, 10% Validation, 10% Test
 images = data['image'].unique().tolist()

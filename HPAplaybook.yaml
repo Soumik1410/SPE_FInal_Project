@@ -5,6 +5,8 @@
   vars:
     deployment_name: image-caption-app
     namespace: image-caption-app-mt2024153
+    container_name: captioner
+    container_image: soumik1410/imagecaptioner_mt2024153:latest
     min_replicas: 1
     max_replicas: 5
     cpu_target_utilization: 80
@@ -16,7 +18,7 @@
       register: addon_result
       changed_when: "'enabled' in addon_result.stdout or 'already enabled' in addon_result.stdout"
 
-    - name: Wait for metrics-server deployment to be ready
+    - name: Wait for metrics-server to be ready
       shell: kubectl rollout status deployment metrics-server -n kube-system
       retries: 5
       delay: 10
@@ -31,15 +33,16 @@
             template:
               spec:
                 containers:
-                  - name: "{{ deployment_name }}"
+                  - name: "{{ container_name }}"
+                    image: "{{ container_image }}"
                     resources:
                       requests:
                         cpu: "200m"
                       limits:
                         cpu: "500m"
-        kind: Deployment
-        namespace: "{{ namespace }}"
-        name: "{{ deployment_name }}"
+      kind: Deployment
+      namespace: "{{ namespace }}"
+      name: "{{ deployment_name }}"
 
     - name: Create or update HorizontalPodAutoscaler
       kubernetes.core.k8s:
