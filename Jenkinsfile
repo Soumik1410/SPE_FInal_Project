@@ -26,7 +26,7 @@ pipeline {
         	'''
     	    }
 	}
-        sstage('Clean Requirements') {
+        stage('Clean Requirements') {
     		steps {
         		script {
 		            sh '''
