@@ -1,0 +1,47 @@
+---
+- name: Set up Fluent Bit, Loki, and Grafana in image-caption-app-mt2024153 namespace
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    namespace: image-caption-app-mt2024153
+
+  tasks:
+
+    - name: Apply Fluent Bit ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/fluent-bit-configmap.yaml
+
+    - name: Deploy Fluent Bit DaemonSet
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/fluent-bit-daemonset.yaml
+
+    - name: Deploy Loki
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/loki-deployment.yaml
+
+    - name: Deploy Grafana
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/grafana-deployment.yaml
+
+    - name: Wait for Grafana rollout
+      shell: kubectl rollout status deployment/grafana -n {{ namespace }}
+      register: grafana_ready
+      retries: 5
+      delay: 10
+      until: grafana_ready.rc == 0
+
+    - name: Apply Grafana Loki datasource config
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/grafana-datasource.yaml
+
