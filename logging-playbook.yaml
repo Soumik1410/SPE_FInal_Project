@@ -26,6 +26,12 @@
         namespace: "{{ namespace }}"
         src: files/loki-deployment.yaml
 
+    - name: Apply Grafana Loki datasource config
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/grafana-datasource.yaml
+        
     - name: Deploy Grafana
       kubernetes.core.k8s:
         state: present
@@ -39,9 +45,12 @@
       delay: 10
       until: grafana_ready.rc == 0
 
-    - name: Apply Grafana Loki datasource config
-      kubernetes.core.k8s:
-        state: present
-        namespace: "{{ namespace }}"
-        src: files/grafana-datasource.yaml
-
+    - name: Show rollout result
+      debug:
+        msg: >
+          {% if grafana_ready.rc == 0 %}
+          Grafana deployment rolled out successfully.
+          {% else %}
+          Grafana deployment rollout failed or timed out.
+          {% endif %}
+      
