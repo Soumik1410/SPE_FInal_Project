@@ -43,12 +43,9 @@ data:
         Name            loki
         Match           *
         Uri             http://loki:3100/loki/api/v1/push
-        BatchWait       1
-        BatchSize       102400
-        LogLevel        info
-        LabelKeys       job,namespace,container_name
-        RemoveKeys      source,stream
-        AutoKubernetesLabels true
+        label_keys      job,namespace,container_name
+        remove_keys     source,stream
+        auto_kubernetes_labels true
 
   parsers.conf: |
     [PARSER]
