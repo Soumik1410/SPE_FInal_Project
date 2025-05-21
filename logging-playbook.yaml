@@ -20,6 +20,12 @@
         namespace: "{{ namespace }}"
         src: files/fluent-bit-daemonset.yaml
 
+    - name: Apply Loki ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/loki-configmap.yaml
+
     - name: Deploy Loki
       kubernetes.core.k8s:
         state: present
