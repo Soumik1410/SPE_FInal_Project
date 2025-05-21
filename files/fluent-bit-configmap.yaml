@@ -33,11 +33,6 @@ data:
         Labels              On
         K8S-Logging.Parser  On
         K8S-Logging.Exclude Off
-    
-    [FILTER]
-        Name        grep
-        Match       kube.*
-        Regex       kubernetes.namespace_name ^image-caption-app-mt2024153$
 
     [OUTPUT]
         Name            loki
