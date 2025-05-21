@@ -97,6 +97,13 @@ spec:
       labels:
         app: loki
     spec:
+      initContainers:
+      - name: init-loki-storage
+        image: busybox
+        command: ["sh", "-c", "mkdir -p /loki/index /loki/cache /loki/chunks"]
+        volumeMounts:
+          - name: loki-storage
+            mountPath: /loki
       containers:
         - name: loki
           image: grafana/loki:2.9.4
@@ -109,6 +116,8 @@ spec:
               mountPath: /etc/loki
             - name: loki-storage
               mountPath: /loki
+          securityContext:
+            runAsUser: 0 
       volumes:
         - name: config
           configMap:
