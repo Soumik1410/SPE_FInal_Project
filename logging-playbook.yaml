@@ -14,6 +14,12 @@
         namespace: "{{ namespace }}"
         src: files/fluent-bit-configmap.yaml
 
+    - name: Apply Fluent Bit RBAC
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ namespace }}"
+        src: files/fluent-bit-rbac.yaml
+
     - name: Deploy Fluent Bit DaemonSet
       kubernetes.core.k8s:
         state: present
