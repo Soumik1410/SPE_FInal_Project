@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-datasource
+  name: grafana-datasources
   namespace: image-caption-app-mt2024153
   labels:
     app: grafana
