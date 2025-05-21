@@ -30,7 +30,7 @@
       kubernetes.core.k8s:
         state: present
         namespace: "{{ namespace }}"
-        src: files/grafana-datasource.yaml
+        src: files/grafana-datasources.yaml
         
     - name: Deploy Grafana
       kubernetes.core.k8s:
