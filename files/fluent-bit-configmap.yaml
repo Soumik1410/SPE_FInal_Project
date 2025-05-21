@@ -37,7 +37,9 @@ data:
     [OUTPUT]
         Name            loki
         Match           *
-        Uri             http://loki:3100/loki/api/v1/push
+        Host            loki.image-caption-app-mt2024153.svc.cluster.local
+        Port            3100
+        URI             /loki/api/v1/push
         remove_keys     source,stream
         auto_kubernetes_labels true
 
