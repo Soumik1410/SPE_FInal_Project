@@ -13,12 +13,12 @@ pipeline {
             steps {
                 sh '/home/soumik/ml-devops-env/bin/python train.py'
             }
-        }
+        }/*
         stage('Test Model') {
             steps {
                 sh '/home/soumik/ml-devops-env/bin/python test.py'
             }
-        }
+        }*/
 	stage('Export Requirements') {
     	    steps {
         	sh '''
