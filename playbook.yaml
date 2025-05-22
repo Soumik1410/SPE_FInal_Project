@@ -2,5 +2,6 @@
 - name: Deploy Docker image to Minikube Kubernetes cluster
   hosts: localhost
   roles:
+    - docker_pull
     - k8s_deploy
 

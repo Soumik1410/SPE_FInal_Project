@@ -1,14 +1,6 @@
 ---
 # tasks file for roles/k8s_deploy
 
-- name: Pull Docker image from Docker Hub
-  shell: docker pull soumik1410/imagecaptioner_mt2024153:latest
-  register: docker_pull_result
-
-- name: Show Docker pull output
-  debug:
-    var: docker_pull_result.stdout_lines
-
 - name: Stop existing Minikube cluster if running
   shell: minikube stop
   ignore_errors: yes
