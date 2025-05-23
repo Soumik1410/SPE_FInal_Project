@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 *.log
+*.CSV
 mlruns/
 train.py
 test.py
